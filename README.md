@@ -1,4 +1,4 @@
-# dreamstudio-history-userscript
+# dreamcatcher
 Download your local image history from your browser
 
 (Work in progress, not finished yet)
