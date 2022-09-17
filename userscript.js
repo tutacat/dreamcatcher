@@ -96,7 +96,8 @@ if (x.length) {
   _e.addEventListener("click", () => {
     _e.disabled = true;
     _sp3.style = "color:gray;font-style:italic"
-    if (outDir || (window.confirm("DreamCatcher: FileSystem API unsupported, make sure you have automatic downloads turned on.") && window.confirm("DreamCatcher: Starting many downloads, press Escape or reload to stop"))) {
+    if ((outDir || window.confirm("DreamCatcher: FileSystem API unsupported, make sure you have automatic downloads turned on.")) &&
+      window.confirm("DreamCatcher: Starting many downloads, press Escape or reload to stop")) {
       exportFiles()
     } else {
       _e.disabled = false;
