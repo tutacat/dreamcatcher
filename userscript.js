@@ -1,20 +1,26 @@
 // ==UserScript==
 // @match https://beta.dreamstudio.ai/*
-// Dream Studio Download History
+// DreamCatcher: Download Dream Studio History
+// This userscript is also chromium compatible
 x = []
 if (window._e) {
   _e.remove()
 }
 if (document.domain == "beta.dreamstudio.ai") {
   x = localStorage.getItem("projects");
+  if (!x || !x.length) {
+    window.alert("DreamCatcher: Couldn't find `projects` in local Storage.");
+  }
 }
+// Does data exist?
 if (x.length) {
-  
+
   _sp3 = document.createElement("span")
   _sp3.dataset["v-7a9c66dd"] = ""
   _sp3.className = "menu-title"
-  _sp3.innerHTML = "\nDownload History\n"
-  
+  _sp3.innerHTML = "\nDreamCatcher Download History\n"
+
+  // Create function for running
   function exportFiles() {
     outDir = null;
 
@@ -31,28 +37,38 @@ if (x.length) {
         }
       }
     }
+    // Enable stopping
+    function export_stop(e) {
+      export_stopped = true;
+    }
 
-    var export_stop = false
-    var export_kd = window.addEventListener("keydown", (e) => {
+    var export_stopped = false
+    window.addEventListener("keydown", (e) => {
       if (e.key == "Escape") {
-        export_stop = true;
+        export_stop();
       }
     }, {
       once: true
-    })
+    });
 
     i = 0
 
+    // Don't hammer the thread, wait for delay
     function loop(i, x) {
-      if (!export_stop && i < x.length) {
+      if (!export_stopped && i < x.length) {
+        // Get cached png
         url = x[i]["image_data"];
+        // Get parameters
         title = x[i]["seed"] + "-" + x[i]["prompt"].replaceAll(" ", "_") + x[i]["width"] + "x" + x[i]["height"] + "-s" + x[i]["cfgScale"] + ".png";
         if (outDir) {
+          // Using new FileSystem API
+          window.alert("DreamCatcher: Choose save folder...")
           handle = outDir.getFileHandle(title);
           file = handle.createWritable();
           file.write(new Blob(url));
           handle.close();
         } else {
+          // Standard downloads
           a = document.createElement("a");
           a.href = url;
           a.download = title;
@@ -62,26 +78,30 @@ if (x.length) {
         i++;
         setTimeout(loop, 0, i, x)
       } else {
-        export_stop = true
-        window.removeEventListener(export_kd)
+        export_stopped = true
         _e_input_.disabled = false;
-        _sp3.style=""
+        _sp3.style = ""
       }
     }
     loop(0, x)
-    return new Promise([export_stop])
+    return new Promise([export_stopped])
   }
 
-  
+
   _e = document.createElement("button")
-  _e.className=""
+  _e.className = ""
   _e.href = "javascript:void(0)"
   _e.dataset["v-7a9c66dd"] = ""
-  _e.alt = "Download Image History"
+  _e.alt = "download image history using dream catcher"
   _e.addEventListener("click", () => {
     _e.disabled = true;
-    _sp3.style="color:gray;font-style:italic"
-    exportFiles()
+    _sp3.style = "color:gray;font-style:italic"
+    if (outDir || (window.confirm("DreamCatcher: FileSystem API unsupported, make sure you have automatic downloads turned on.") && window.confirm("DreamCatcher: Starting many downloads, press Escape or reload to stop"))) {
+      exportFiles()
+    } else {
+      _e.disabled = false;
+      _sp3.style = ""
+    }
   })
   _sp = document.createElement("span");
   _sp.dataset["v-7a9c66dd"] = ""
